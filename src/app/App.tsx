@@ -14,6 +14,16 @@ import { VendorDashboard } from "./pages/vendor/VendorDashboard";
 import { VendorJobsPage } from "./pages/vendor/VendorJobsPage";
 import { StaffLayout } from "./pages/staff/StaffLayout";
 import { StaffDashboard } from "./pages/staff/StaffDashboard";
+import { TermsPage } from "./pages/customer/TermsPage";
+import { PrivacyPage } from "./pages/customer/PrivacyPage";
+import { RefundPolicyPage } from "./pages/customer/RefundPolicyPage";
+import { FAQPage } from "./pages/customer/FAQPage";
+import { ContactPage } from "./pages/customer/ContactPage";
+import { AboutPage } from "./pages/customer/AboutPage";
+import { ReviewsPage } from "./pages/customer/ReviewsPage";
+import { BlogPage } from "./pages/customer/BlogPage";
+import { OffersPage } from "./pages/customer/OffersPage";
+import { VendorRegisterPage } from "./pages/vendor/VendorRegisterPage";
 
 export default function App() {
   return (
@@ -26,12 +36,23 @@ export default function App() {
           <Route path="services/:id" element={<ServiceDetailsPage />} />
           <Route path="checkout" element={<CheckoutPage />} />
           <Route path="booking-success" element={<BookingSuccessPage />} />
+          <Route path="terms" element={<TermsPage />} />
+          <Route path="privacy" element={<PrivacyPage />} />
+          <Route path="refund-policy" element={<RefundPolicyPage />} />
+          <Route path="faq" element={<FAQPage />} />
+          <Route path="contact" element={<ContactPage />} />
+          <Route path="about" element={<AboutPage />} />
+          <Route path="reviews" element={<ReviewsPage />} />
+          <Route path="blog" element={<BlogPage />} />
+          <Route path="blog/:id" element={<BlogPage />} />
+          <Route path="offers" element={<OffersPage />} />
         </Route>
 
         {/* Vendor Panel Routes */}
         <Route path="/vendor" element={<VendorLayout />}>
           <Route index element={<VendorDashboard />} />
           <Route path="jobs" element={<VendorJobsPage />} />
+          <Route path="register" element={<VendorRegisterPage />} />
         </Route>
 
         {/* Staff Panel Routes */}

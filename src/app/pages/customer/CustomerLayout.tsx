@@ -1,4 +1,5 @@
 import { Outlet, Link } from "react-router";
+import { Facebook, Twitter, Instagram } from "lucide-react";
 
 export function CustomerLayout() {
   return (
@@ -21,29 +22,37 @@ export function CustomerLayout() {
         <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <h3 className="text-xl font-bold text-white mb-4">UrbanServe</h3>
-            <p className="text-sm">Your trusted home services partner. Professional, reliable, and affordable.</p>
+            <p className="text-sm mb-6">Your trusted home services partner. Professional, reliable, and affordable.</p>
+            <div className="flex items-center gap-4">
+              <a href="https://facebook.com" className="text-slate-400 hover:text-white transition"><Facebook className="w-5 h-5" /></a>
+              <a href="https://twitter.com" className="text-slate-400 hover:text-white transition"><Twitter className="w-5 h-5" /></a>
+              <a href="https://instagram.com" className="text-slate-400 hover:text-white transition"><Instagram className="w-5 h-5" /></a>
+            </div>
           </div>
           <div>
             <h4 className="text-white font-bold mb-4">Company</h4>
             <ul className="space-y-2 text-sm">
-              <li><Link to="/about">About Us</Link></li>
-              <li><Link to="/terms">Terms & Conditions</Link></li>
-              <li><Link to="/privacy">Privacy Policy</Link></li>
+              <li><Link to="/about" className="hover:text-white transition">About Us</Link></li>
+              <li><Link to="/contact" className="hover:text-white transition">Contact Us</Link></li>
+              <li><Link to="/terms" className="hover:text-white transition">Terms & Conditions</Link></li>
+              <li><Link to="/privacy" className="hover:text-white transition">Privacy Policy</Link></li>
+              <li><Link to="/refund-policy" className="hover:text-white transition">Cancellation/Refund Policy</Link></li>
             </ul>
           </div>
           <div>
             <h4 className="text-white font-bold mb-4">For Customers</h4>
             <ul className="space-y-2 text-sm">
-              <li><Link to="/reviews">Reviews</Link></li>
-              <li><Link to="/categories">Categories</Link></li>
-              <li><Link to="/blog">Blog</Link></li>
+              <li><Link to="/services" className="hover:text-white transition">All Services</Link></li>
+              <li><Link to="/reviews" className="hover:text-white transition">Reviews</Link></li>
+              <li><Link to="/faq" className="hover:text-white transition">FAQ</Link></li>
+              <li><Link to="/blog" className="hover:text-white transition">Blog</Link></li>
             </ul>
           </div>
           <div>
             <h4 className="text-white font-bold mb-4">For Partners</h4>
             <ul className="space-y-2 text-sm">
-              <li><Link to="/vendor/register">Register as a Professional</Link></li>
-              <li><Link to="/vendor/login">Partner Login</Link></li>
+              <li><Link to="/vendor/register" className="hover:text-white transition">Register as a Professional</Link></li>
+              <li><Link to="/vendor" className="hover:text-white transition">Partner Dashboard</Link></li>
             </ul>
           </div>
         </div>
