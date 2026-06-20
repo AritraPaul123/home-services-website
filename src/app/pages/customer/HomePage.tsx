@@ -109,6 +109,44 @@ export function HomePage() {
         </div>
       </section>
 
+      {/* Customer Quick Links Dashboard (Only visible when logged in) */}
+      <div className="max-w-7xl mx-auto px-4 mt-8">
+        {/* We use a client-side check if user is in localStorage to show a dashboard */}
+        {localStorage.getItem('userAuth') && (
+          <div className="bg-white border rounded-2xl p-6 shadow-sm">
+            <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+              Welcome back! Quick Access
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              <Link to="/profile/bookings" className="flex flex-col items-center justify-center p-4 bg-slate-50 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition border border-slate-100">
+                <span className="text-2xl mb-2">📅</span>
+                <span className="text-sm font-semibold text-center">My Bookings</span>
+              </Link>
+              <Link to="/profile/wallet" className="flex flex-col items-center justify-center p-4 bg-slate-50 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition border border-slate-100">
+                <span className="text-2xl mb-2">💳</span>
+                <span className="text-sm font-semibold text-center">Wallet & Credit</span>
+              </Link>
+              <Link to="/profile/addresses" className="flex flex-col items-center justify-center p-4 bg-slate-50 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition border border-slate-100">
+                <span className="text-2xl mb-2">📍</span>
+                <span className="text-sm font-semibold text-center">Saved Addresses</span>
+              </Link>
+              <Link to="/profile/favorites" className="flex flex-col items-center justify-center p-4 bg-slate-50 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition border border-slate-100">
+                <span className="text-2xl mb-2">❤️</span>
+                <span className="text-sm font-semibold text-center">Favorites</span>
+              </Link>
+              <Link to="/profile/referrals" className="flex flex-col items-center justify-center p-4 bg-slate-50 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition border border-slate-100">
+                <span className="text-2xl mb-2">🎁</span>
+                <span className="text-sm font-semibold text-center">Refer & Earn</span>
+              </Link>
+              <Link to="/profile/help" className="flex flex-col items-center justify-center p-4 bg-slate-50 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition border border-slate-100">
+                <span className="text-2xl mb-2">💬</span>
+                <span className="text-sm font-semibold text-center">Help Center</span>
+              </Link>
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Trust Badges */}
       <section className="py-8 bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 flex flex-wrap justify-center gap-8 md:gap-16">

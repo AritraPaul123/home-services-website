@@ -1,17 +1,98 @@
-import { Outlet, Link } from "react-router";
-import { Facebook, Twitter, Instagram } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Outlet, Link, useNavigate } from "react-router";
+import { Facebook, Twitter, Instagram, ShoppingCart, User, CalendarDays, Wallet, LifeBuoy, LogOut, ChevronDown } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
+import { useCart } from "../../context/CartContext";
 
 export function CustomerLayout() {
+  const { isAuthenticated, user, logout } = useAuth();
+  const { items: cartItems } = useCart();
+  const navigate = useNavigate();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const cartItemCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleLogout = () => {
+    setIsDropdownOpen(false);
+    logout();
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
-      <header className="bg-white border-b sticky top-0 z-50">
+      <header className="bg-white border-b sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
           <Link to="/" className="text-2xl font-bold text-blue-600">UrbanServe</Link>
           <nav className="hidden md:flex items-center gap-6">
             <Link to="/services" className="text-slate-600 hover:text-blue-600 font-medium">Services</Link>
             <Link to="/offers" className="text-slate-600 hover:text-blue-600 font-medium">Offers</Link>
             <Link to="/vendor/login" className="text-slate-600 hover:text-blue-600 font-medium">Register as Professional</Link>
-            <Link to="/customer/login" className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition">Login</Link>
+            
+            {/* Cart Icon */}
+            <Link to="/checkout" className="relative text-slate-600 hover:text-blue-600 transition">
+              <ShoppingCart className="w-6 h-6" />
+              {cartItemCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full">
+                  {cartItemCount}
+                </span>
+              )}
+            </Link>
+
+            {isAuthenticated ? (
+              <div className="relative" ref={dropdownRef}>
+                <button 
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className="flex items-center gap-2 bg-slate-100 text-slate-700 px-4 py-2 rounded-lg font-medium hover:bg-slate-200 transition"
+                >
+                  <User className="w-4 h-4" />
+                  {user?.name || "Profile"}
+                  <ChevronDown className="w-4 h-4 text-slate-500" />
+                </button>
+
+                {/* Dropdown Menu */}
+                {isDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-slate-100 overflow-hidden py-2 animate-in fade-in slide-in-from-top-2">
+                    <div className="px-4 py-3 border-b border-slate-100 mb-2">
+                      <p className="text-sm font-semibold text-slate-900">{user?.name}</p>
+                      <p className="text-xs text-slate-500 truncate">{user?.email}</p>
+                    </div>
+                    
+                    <Link to="/profile" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-3 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-blue-600">
+                      <User className="w-4 h-4" /> My Profile
+                    </Link>
+                    <Link to="/profile/bookings" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-3 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-blue-600">
+                      <CalendarDays className="w-4 h-4" /> My Bookings
+                    </Link>
+                    <Link to="/profile/wallet" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-3 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-blue-600">
+                      <Wallet className="w-4 h-4" /> Wallet & Payments
+                    </Link>
+                    <Link to="/profile/help" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-3 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-blue-600">
+                      <LifeBuoy className="w-4 h-4" /> Help Center
+                    </Link>
+                    
+                    <div className="h-px bg-slate-100 my-2"></div>
+                    
+                    <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                      <LogOut className="w-4 h-4" /> Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link to="/login" className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition">
+                Login
+              </Link>
+            )}
           </nav>
         </div>
       </header>

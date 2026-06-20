@@ -1,201 +1,223 @@
-import { useState } from "react";
-import { Calendar as CalendarIcon, Clock, CreditCard, Banknote, ShieldCheck } from "lucide-react";
-import { Link } from "react-router";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router";
+import { useCart } from "../../context/CartContext";
+import { DateTimeSelection } from "../../components/checkout/DateTimeSelection";
+import { CouponSection } from "../../components/checkout/CouponSection";
+import { PaymentSelection, PaymentMethod } from "../../components/checkout/PaymentSelection";
+import { AddressModal, Address } from "../../components/customer/AddressModal";
+import { ShieldCheck, MapPin, Trash2, Plus, Minus } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
 
 export function CheckoutPage() {
-  const [step, setStep] = useState(1); // 1: Schedule, 2: Address, 3: Payment
-  const [paymentMethod, setPaymentMethod] = useState("online");
+  const { items, removeItem, updateQuantity, subtotal } = useCart();
+  const navigate = useNavigate();
+  
+  const [step, setStep] = useState(1);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedTime, setSelectedTime] = useState<string>('');
+  const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('online');
+  const [discount, setDiscount] = useState(0);
+  const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
+
+  const taxes = subtotal * 0.08;
+  const total = subtotal + taxes - discount;
+
+  const handleDateTimeSelect = (date: Date, time: string) => {
+    setSelectedDate(date);
+    setSelectedTime(time);
+  };
+
+  const handleAddressSave = (address: Address) => {
+    setSelectedAddress(address);
+  };
+
+  const handlePaymentSelect = (method: PaymentMethod) => {
+    setPaymentMethod(method);
+  };
+
+  const handleCouponApply = (discountAmount: number) => {
+    setDiscount(discountAmount);
+  };
+
+  const handleConfirmBooking = () => {
+    // In a real app, make API call here
+    const bookingId = `BKG-${Math.floor(Math.random() * 1000000)}`;
+    navigate('/booking-success', { 
+      state: { bookingId, total, date: selectedDate, time: selectedTime } 
+    });
+  };
+
+  if (items.length === 0) {
+    return (
+      <div className="bg-slate-50 min-h-[70vh] flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-4">Your cart is empty</h2>
+          <Button asChild>
+            <Link to="/services">Browse Services</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-slate-50 min-h-screen py-8">
-      <div className="max-w-5xl mx-auto px-4 flex flex-col md:flex-row gap-8">
+      <div className="max-w-6xl mx-auto px-4 flex flex-col lg:flex-row gap-8">
         
         {/* Main Content - Left Side */}
         <div className="flex-[2] space-y-6">
           <h1 className="text-3xl font-bold text-slate-900 mb-8">Checkout</h1>
 
-          {/* Step 1: Schedule */}
-          <div className={`bg-white border ${step === 1 ? 'border-blue-500 shadow-md ring-1 ring-blue-500' : 'border-slate-200'} rounded-2xl p-6 transition-all`}>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold flex items-center gap-3">
-                <span className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm">1</span> 
-                Select Schedule
-              </h2>
-              {step > 1 && <button onClick={() => setStep(1)} className="text-blue-600 text-sm font-medium hover:underline">Edit</button>}
-            </div>
-            
-            {step === 1 ? (
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-3">Select Date</label>
-                  <div className="flex gap-3 overflow-x-auto pb-2">
-                    {['Today', 'Tomorrow', 'Oct 26', 'Oct 27', 'Oct 28'].map((day, i) => (
-                      <button key={i} className={`shrink-0 px-6 py-3 rounded-xl border ${i === 1 ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-slate-200 hover:border-slate-300'} font-medium transition-colors`}>
-                        {day}
+          {/* Cart Items (Features 56, 57) */}
+          <Card className="shadow-sm">
+            <CardHeader className="pb-4 border-b">
+              <CardTitle className="text-lg">Review Services</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6 space-y-4">
+              {items.map(item => (
+                <div key={item.id} className="flex gap-4 items-center justify-between border-b pb-4 last:border-0 last:pb-0">
+                  <div className="flex items-center gap-4">
+                    {item.image && (
+                      <img src={item.image} alt={item.name} className="w-16 h-16 rounded-md object-cover" />
+                    )}
+                    <div>
+                      <h4 className="font-semibold text-slate-900">{item.name}</h4>
+                      <p className="text-sm text-slate-500">${item.price.toFixed(2)}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center border rounded-lg">
+                      <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="p-2 hover:bg-slate-100">
+                        <Minus className="w-4 h-4" />
                       </button>
-                    ))}
+                      <span className="w-8 text-center font-medium">{item.quantity}</span>
+                      <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="p-2 hover:bg-slate-100">
+                        <Plus className="w-4 h-4" />
+                      </button>
+                    </div>
+                    <button onClick={() => removeItem(item.id)} className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                      <Trash2 className="w-5 h-5" />
+                    </button>
                   </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-3">Select Time</label>
-                  <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
-                    {['09:00 AM', '11:00 AM', '01:00 PM', '03:00 PM', '05:00 PM'].map((time, i) => (
-                      <button key={i} className={`px-4 py-3 rounded-xl border ${i === 2 ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-slate-200 hover:border-slate-300'} text-sm font-medium transition-colors`}>
-                        {time}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <button onClick={() => setStep(2)} className="w-full py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition">
-                  Continue to Address
-                </button>
-              </div>
-            ) : (
-              <div className="text-slate-600 flex items-center gap-2">
-                <CalendarIcon className="w-5 h-5 text-blue-600" /> Tomorrow, Oct 25 
-                <span className="mx-2">•</span> 
-                <Clock className="w-5 h-5 text-blue-600" /> 01:00 PM
+              ))}
+            </CardContent>
+          </Card>
+
+          {/* Step 1: Schedule (Features 59, 60) */}
+          <div className={step === 1 ? 'ring-2 ring-blue-500 rounded-lg' : 'opacity-70 grayscale'}>
+            <DateTimeSelection onSelect={handleDateTimeSelect} />
+            {step === 1 && (
+              <div className="mt-4 flex justify-end">
+                <Button onClick={() => setStep(2)}>Continue to Address</Button>
               </div>
             )}
           </div>
 
-          {/* Step 2: Address */}
-          <div className={`bg-white border ${step === 2 ? 'border-blue-500 shadow-md ring-1 ring-blue-500' : 'border-slate-200'} rounded-2xl p-6 transition-all ${step < 2 && 'opacity-50 pointer-events-none'}`}>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold flex items-center gap-3">
-                <span className={`w-8 h-8 rounded-full ${step >= 2 ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-400'} flex items-center justify-center text-sm`}>2</span> 
-                Service Address
-              </h2>
-              {step > 2 && <button onClick={() => setStep(2)} className="text-blue-600 text-sm font-medium hover:underline">Edit</button>}
-            </div>
-
-            {step === 2 ? (
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Step 2: Address (Features 50, 52) */}
+          <div className={step === 2 ? 'ring-2 ring-blue-500 rounded-lg' : step < 2 ? 'opacity-50 pointer-events-none' : 'opacity-70 grayscale'}>
+            <Card className="shadow-sm">
+              <CardHeader className="pb-4 border-b flex flex-row items-center justify-between">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <MapPin className="w-5 h-5 text-blue-600" />
+                  Service Address
+                </CardTitle>
+                {step > 2 && <Button variant="link" onClick={() => setStep(2)}>Edit</Button>}
+              </CardHeader>
+              <CardContent className="pt-6">
+                {selectedAddress ? (
                   <div className="border-2 border-blue-600 bg-blue-50 rounded-xl p-4 cursor-pointer relative">
-                    <div className="absolute top-4 right-4 w-5 h-5 rounded-full border-4 border-blue-600 bg-white"></div>
-                    <span className="inline-block px-2 py-1 bg-blue-200 text-blue-800 text-xs font-bold rounded mb-2 uppercase">Home</span>
-                    <p className="font-bold text-slate-900">John Doe</p>
-                    <p className="text-slate-600 text-sm mt-1">123 Main Street, Apt 4B<br/>New York, NY 10001</p>
-                    <p className="text-slate-600 text-sm mt-2">+1 (555) 123-4567</p>
+                    <span className="inline-block px-2 py-1 bg-blue-200 text-blue-800 text-xs font-bold rounded mb-2 uppercase">{selectedAddress.type}</span>
+                    <p className="font-bold text-slate-900">{selectedAddress.street}</p>
+                    <p className="text-slate-600 text-sm mt-1">{selectedAddress.city}, {selectedAddress.state} {selectedAddress.zip}</p>
+                    {step === 2 && (
+                      <Button variant="outline" className="mt-4 w-full" onClick={() => setIsAddressModalOpen(true)}>Change Address</Button>
+                    )}
                   </div>
-                  <div className="border border-slate-200 hover:border-slate-300 rounded-xl p-4 cursor-pointer flex flex-col items-center justify-center gap-2 text-slate-500 transition-colors">
-                    <span className="text-2xl">+</span>
-                    <span className="font-medium">Add New Address</span>
+                ) : (
+                  <div 
+                    className="border-2 border-dashed border-slate-300 hover:border-slate-400 rounded-xl p-8 cursor-pointer flex flex-col items-center justify-center gap-2 text-slate-500 transition-colors"
+                    onClick={() => setIsAddressModalOpen(true)}
+                  >
+                    <Plus className="w-8 h-8" />
+                    <span className="font-medium">Add Service Address</span>
                   </div>
-                </div>
-                <button onClick={() => setStep(3)} className="w-full py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition">
-                  Proceed to Payment
-                </button>
+                )}
+              </CardContent>
+            </Card>
+            {step === 2 && selectedAddress && (
+              <div className="mt-4 flex justify-end">
+                <Button onClick={() => setStep(3)}>Continue to Payment</Button>
               </div>
-            ) : step > 2 ? (
-              <div className="text-slate-600">
-                <span className="font-bold text-slate-900">Home:</span> 123 Main Street, Apt 4B, New York, NY 10001
-              </div>
-            ) : null}
+            )}
           </div>
 
-          {/* Step 3: Payment */}
-          <div className={`bg-white border ${step === 3 ? 'border-blue-500 shadow-md ring-1 ring-blue-500' : 'border-slate-200'} rounded-2xl p-6 transition-all ${step < 3 && 'opacity-50 pointer-events-none'}`}>
-            <h2 className="text-xl font-bold flex items-center gap-3 mb-6">
-              <span className={`w-8 h-8 rounded-full ${step >= 3 ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-400'} flex items-center justify-center text-sm`}>3</span> 
-              Payment Options
-            </h2>
-            
+          {/* Step 3: Payment (Features 63, 64) */}
+          <div className={step === 3 ? 'ring-2 ring-blue-500 rounded-lg' : step < 3 ? 'opacity-50 pointer-events-none' : ''}>
+            <PaymentSelection onSelect={handlePaymentSelect} walletBalance={250.00} />
             {step === 3 && (
-              <div className="space-y-6">
-                <div className="space-y-3">
-                  <label className={`flex items-center justify-between p-4 border rounded-xl cursor-pointer transition-colors ${paymentMethod === 'online' ? 'border-blue-600 bg-blue-50' : 'border-slate-200 hover:border-slate-300'}`}>
-                    <div className="flex items-center gap-4">
-                      <CreditCard className={`w-6 h-6 ${paymentMethod === 'online' ? 'text-blue-600' : 'text-slate-400'}`} />
-                      <div>
-                        <p className="font-bold text-slate-900">Pay Online</p>
-                        <p className="text-xs text-slate-500">Credit/Debit Card, UPI, Wallets</p>
-                      </div>
-                    </div>
-                    <input 
-                      type="radio" 
-                      name="payment" 
-                      checked={paymentMethod === 'online'} 
-                      onChange={() => setPaymentMethod('online')} 
-                      className="w-5 h-5 accent-blue-600"
-                    />
-                  </label>
-
-                  <label className={`flex items-center justify-between p-4 border rounded-xl cursor-pointer transition-colors ${paymentMethod === 'cash' ? 'border-blue-600 bg-blue-50' : 'border-slate-200 hover:border-slate-300'}`}>
-                    <div className="flex items-center gap-4">
-                      <Banknote className={`w-6 h-6 ${paymentMethod === 'cash' ? 'text-blue-600' : 'text-slate-400'}`} />
-                      <div>
-                        <p className="font-bold text-slate-900">Cash on Service</p>
-                        <p className="text-xs text-slate-500">Pay directly to the professional</p>
-                      </div>
-                    </div>
-                    <input 
-                      type="radio" 
-                      name="payment" 
-                      checked={paymentMethod === 'cash'} 
-                      onChange={() => setPaymentMethod('cash')} 
-                      className="w-5 h-5 accent-blue-600"
-                    />
-                  </label>
-                </div>
-
-                <div className="pt-4 border-t border-slate-100 flex items-center gap-2 text-slate-500 text-sm">
-                  <ShieldCheck className="w-5 h-5 text-green-600" />
-                  Payments are 100% secure and encrypted.
-                </div>
-
-                <Link to="/booking-success" className="block w-full text-center py-4 bg-slate-900 text-white rounded-xl font-bold hover:bg-black transition-colors text-lg shadow-lg">
-                  Confirm Booking • $149.00
-                </Link>
+              <div className="mt-6 p-4 bg-green-50 rounded-lg flex items-center gap-2 text-green-800">
+                <ShieldCheck className="w-5 h-5" />
+                Your booking is secure and encrypted.
               </div>
             )}
           </div>
         </div>
 
-        {/* Sidebar - Right Side Summary */}
+        {/* Sidebar - Right Side Summary (Features 58, 61, 62) */}
         <div className="flex-1">
-          <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm sticky top-24">
-            <h3 className="text-lg font-bold text-slate-900 mb-6">Booking Summary</h3>
-            
-            <div className="flex justify-between items-start mb-6">
-              <div>
-                <h4 className="font-bold text-slate-800">Deep Home Cleaning</h4>
-                <p className="text-sm text-slate-500">4-5 hours</p>
-              </div>
-              <p className="font-bold text-slate-900">$149.00</p>
-            </div>
+          <div className="sticky top-24 space-y-6">
+            <CouponSection onApply={handleCouponApply} />
 
-            <div className="pt-4 border-t border-slate-100 space-y-3">
-              <div className="flex justify-between text-sm text-slate-600">
-                <span>Item Total</span>
-                <span>$149.00</span>
-              </div>
-              <div className="flex justify-between text-sm text-slate-600">
-                <span>Taxes & Fee</span>
-                <span>$12.50</span>
-              </div>
-              <div className="flex justify-between text-sm text-green-600">
-                <span>Discount Applied</span>
-                <span>-$12.50</span>
-              </div>
-            </div>
+            <Card className="shadow-sm">
+              <CardHeader className="pb-4 border-b">
+                <CardTitle className="text-lg">Price Breakdown</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <div className="space-y-3">
+                  <div className="flex justify-between text-sm text-slate-600">
+                    <span>Subtotal ({items.length} items)</span>
+                    <span>${subtotal.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm text-slate-600">
+                    <span>Taxes & Fees</span>
+                    <span>${taxes.toFixed(2)}</span>
+                  </div>
+                  {discount > 0 && (
+                    <div className="flex justify-between text-sm text-green-600 font-medium">
+                      <span>Discount</span>
+                      <span>-${discount.toFixed(2)}</span>
+                    </div>
+                  )}
+                </div>
 
-            <div className="pt-4 mt-4 border-t border-slate-200 flex justify-between items-center">
-              <span className="font-bold text-lg text-slate-900">Amount to Pay</span>
-              <span className="font-bold text-2xl text-slate-900">$149.00</span>
-            </div>
-            
-            <div className="mt-6">
-              <div className="flex relative">
-                <input type="text" placeholder="Coupon code" className="w-full border border-slate-300 rounded-l-lg px-4 py-2 text-sm focus:outline-none focus:border-blue-500" />
-                <button className="bg-slate-900 text-white px-4 py-2 rounded-r-lg text-sm font-bold">Apply</button>
-              </div>
-            </div>
+                <div className="pt-4 mt-4 border-t border-slate-200 flex justify-between items-center">
+                  <span className="font-bold text-lg text-slate-900">Total</span>
+                  <span className="font-bold text-2xl text-slate-900">${total.toFixed(2)}</span>
+                </div>
+
+                <Button 
+                  className="w-full mt-6" 
+                  size="lg" 
+                  onClick={handleConfirmBooking}
+                  disabled={step !== 3 || !selectedAddress || !selectedDate || !selectedTime}
+                >
+                  Confirm Booking
+                </Button>
+              </CardContent>
+            </Card>
           </div>
         </div>
-
       </div>
+
+      <AddressModal 
+        isOpen={isAddressModalOpen}
+        onClose={() => setIsAddressModalOpen(false)}
+        onSave={handleAddressSave}
+      />
     </div>
   );
 }

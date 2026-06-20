@@ -1,7 +1,15 @@
-import { CheckCircle, Calendar, Clock, MapPin, User } from "lucide-react";
-import { Link } from "react-router";
+import { CheckCircle, Calendar, Clock, MapPin } from "lucide-react";
+import { Link, useLocation, Navigate } from "react-router";
+import { format } from "date-fns";
 
 export function BookingSuccessPage() {
+  const location = useLocation();
+  const state = location.state as { bookingId: string, total: number, date: Date, time: string };
+
+  if (!state) {
+    return <Navigate to="/checkout" replace />;
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 py-16 px-4 flex justify-center items-center">
       <div className="max-w-2xl w-full bg-white rounded-3xl shadow-xl overflow-hidden text-center">
@@ -16,9 +24,16 @@ export function BookingSuccessPage() {
         </div>
 
         <div className="p-8">
-          <div className="flex items-center justify-center gap-2 mb-8">
-            <span className="text-slate-500">Booking ID:</span>
-            <span className="font-mono font-bold text-slate-900 bg-slate-100 px-3 py-1 rounded">#BKG-8495-XYZ</span>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
+            <div className="flex items-center gap-2">
+              <span className="text-slate-500">Booking ID:</span>
+              <span className="font-mono font-bold text-slate-900 bg-slate-100 px-3 py-1 rounded">{state.bookingId}</span>
+            </div>
+            <div className="hidden sm:block text-slate-300">|</div>
+            <div className="flex items-center gap-2">
+              <span className="text-slate-500">Total Paid:</span>
+              <span className="font-bold text-green-600 bg-green-50 px-3 py-1 rounded">${state.total.toFixed(2)}</span>
+            </div>
           </div>
 
           <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 text-left space-y-4 mb-8">
@@ -28,7 +43,7 @@ export function BookingSuccessPage() {
               </div>
               <div>
                 <p className="text-sm text-slate-500">Service Date</p>
-                <p className="font-bold text-slate-900">Tomorrow, October 25, 2026</p>
+                <p className="font-bold text-slate-900">{format(state.date, 'EEEE, MMMM do, yyyy')}</p>
               </div>
             </div>
             <div className="flex items-start gap-4">
@@ -37,7 +52,7 @@ export function BookingSuccessPage() {
               </div>
               <div>
                 <p className="text-sm text-slate-500">Service Time</p>
-                <p className="font-bold text-slate-900">01:00 PM - 02:00 PM Arrival Window</p>
+                <p className="font-bold text-slate-900">{state.time}</p>
               </div>
             </div>
             <div className="flex items-start gap-4">
@@ -46,18 +61,18 @@ export function BookingSuccessPage() {
               </div>
               <div>
                 <p className="text-sm text-slate-500">Service Address</p>
-                <p className="font-bold text-slate-900">123 Main Street, Apt 4B, New York, NY 10001</p>
+                <p className="font-bold text-slate-900">Address selected in checkout</p>
               </div>
             </div>
           </div>
 
           <p className="text-slate-600 mb-8">
-            We've sent a confirmation email to <span className="font-bold text-slate-800">john.doe@example.com</span>. 
+            We've sent a confirmation email to your registered email address. 
             A professional will be assigned to your booking shortly.
           </p>
 
           <div className="flex flex-col md:flex-row gap-4 justify-center">
-            <Link to="/customer/bookings" className="px-8 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition shadow-md">
+            <Link to="/profile/bookings" className="px-8 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition shadow-md">
               View My Bookings
             </Link>
             <Link to="/" className="px-8 py-3 bg-white text-slate-700 border border-slate-300 font-bold rounded-xl hover:bg-slate-50 transition">
