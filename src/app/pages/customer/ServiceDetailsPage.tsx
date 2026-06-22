@@ -1,8 +1,13 @@
-import { Star, Clock, Shield, CheckCircle, XCircle } from "lucide-react";
+import { Star, Clock, Shield, CheckCircle, XCircle, Heart, ShoppingCart } from "lucide-react";
 import { useParams, Link } from "react-router";
+import { useCart } from "../../context/CartContext";
+import { useFavorites } from "../../context/FavoritesContext";
+import { toast } from "sonner";
 
 export function ServiceDetailsPage() {
   const { id } = useParams();
+  const { addItem } = useCart();
+  const { isFavorite, addFavorite, removeFavorite } = useFavorites();
   
   // Mock data
   const service = {
@@ -28,6 +33,36 @@ export function ServiceDetailsPage() {
       "Washing of clothes or dishes",
       "Deep upholstery cleaning (available as add-on)"
     ]
+  };
+
+  const isFav = isFavorite(service.id || "srv-1");
+
+  const handleToggleFavorite = () => {
+    if (isFav) {
+      removeFavorite(service.id || "srv-1");
+      toast.success("Removed from favorites");
+    } else {
+      addFavorite({
+        id: service.id || "srv-1",
+        name: service.title,
+        rating: service.rating,
+        reviews: service.reviews,
+        price: service.price,
+        image: service.image
+      });
+      toast.success("Added to favorites");
+    }
+  };
+
+  const handleAddToCart = () => {
+    addItem({
+      id: service.id || "srv-1",
+      name: service.title,
+      price: service.price,
+      quantity: 1,
+      image: service.image
+    });
+    // Removed toast because addItem already has a toast
   };
 
   return (
@@ -110,9 +145,19 @@ export function ServiceDetailsPage() {
               </div>
             </div>
 
-            <Link to="/checkout" className="w-full block text-center bg-blue-600 text-white font-bold py-3 px-4 rounded-xl hover:bg-blue-700 transition shadow-md hover:shadow-lg">
-              Book Now
-            </Link>
+            <div className="space-y-3">
+              <Link to="/checkout" onClick={handleAddToCart} className="w-full block text-center bg-blue-600 text-white font-bold py-3 px-4 rounded-xl hover:bg-blue-700 transition shadow-md hover:shadow-lg">
+                Book Now
+              </Link>
+              <div className="flex gap-3">
+                <button onClick={handleAddToCart} className="flex-1 flex justify-center items-center gap-2 bg-slate-100 text-slate-800 font-bold py-3 px-4 rounded-xl hover:bg-slate-200 transition">
+                  <ShoppingCart className="w-5 h-5" /> Add to Cart
+                </button>
+                <button onClick={handleToggleFavorite} className="flex items-center justify-center p-3 rounded-xl border border-slate-200 hover:bg-red-50 text-slate-600 hover:text-red-500 transition">
+                  <Heart className={`w-6 h-6 ${isFav ? 'fill-red-500 text-red-500' : ''}`} />
+                </button>
+              </div>
+            </div>
             <p className="text-center text-xs text-slate-400 mt-4">You won't be charged yet</p>
           </div>
         </div>

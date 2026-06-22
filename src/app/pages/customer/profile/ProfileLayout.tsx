@@ -24,6 +24,7 @@ export const ProfileLayout = () => {
     { name: 'Wallet & Payments', href: '/profile/wallet', icon: Wallet },
     { name: 'Notifications', href: '/profile/notifications', icon: Bell },
     { name: 'Favorite Services', href: '/profile/favorites', icon: Heart },
+    { name: 'Payment History', href: '/profile/payments', icon: Wallet },
     { name: 'Refer & Earn', href: '/profile/referrals', icon: Gift },
     { name: 'Help Center', href: '/profile/help', icon: HelpCircle },
   ];

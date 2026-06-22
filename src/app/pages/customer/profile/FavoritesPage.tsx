@@ -3,26 +3,10 @@ import { Card, CardContent } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
 import { Heart, Star, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router';
+import { useFavorites } from '../../../context/FavoritesContext';
 
 export const FavoritesPage = () => {
-  const favorites = [
-    {
-      id: 'srv-1',
-      name: 'Deep Home Cleaning',
-      rating: 4.8,
-      reviews: 124,
-      price: 129.99,
-      image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&q=80&w=300'
-    },
-    {
-      id: 'srv-2',
-      name: 'AC Repair & Service',
-      rating: 4.9,
-      reviews: 89,
-      price: 85.00,
-      image: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&q=80&w=300'
-    }
-  ];
+  const { favorites, removeFavorite } = useFavorites();
 
   return (
     <div className="space-y-6">
@@ -41,7 +25,10 @@ export const FavoritesPage = () => {
                   alt={service.name} 
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
                 />
-                <button className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-sm rounded-full text-red-500 hover:scale-110 transition-transform shadow-sm">
+                <button 
+                  onClick={() => removeFavorite(service.id)}
+                  className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-sm rounded-full text-red-500 hover:scale-110 transition-transform shadow-sm"
+                >
                   <Heart className="w-5 h-5 fill-current" />
                 </button>
               </div>

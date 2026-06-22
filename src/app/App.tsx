@@ -42,71 +42,81 @@ import { ReferralsPage } from "./pages/customer/profile/ReferralsPage";
 import { FavoritesPage } from "./pages/customer/profile/FavoritesPage";
 import { NotificationsPage } from "./pages/customer/profile/NotificationsPage";
 import { HelpCenterPage } from "./pages/customer/profile/HelpCenterPage";
+import { PaymentHistoryPage } from "./pages/customer/profile/PaymentHistoryPage";
+import { FavoritesProvider } from "./context/FavoritesContext";
+import { BookingsProvider } from "./context/BookingsContext";
+import { Toaster } from "sonner";
 
 export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <CartProvider>
-          <Routes>
-            {/* Auth Routes */}
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-            <Route path="/otp-login" element={<OTPLoginPage />} />
+        <FavoritesProvider>
+          <BookingsProvider>
+            <CartProvider>
+              <Toaster position="top-right" richColors />
+              <Routes>
+                {/* Auth Routes */}
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="/otp-login" element={<OTPLoginPage />} />
 
-            {/* Customer Facing Routes */}
-            <Route path="/" element={<CustomerLayout />}>
-              <Route index element={<HomePage />} />
-              <Route path="services" element={<ServicesPage />} />
-              <Route path="services/:id" element={<ServiceDetailsPage />} />
-              <Route path="checkout" element={<CheckoutPage />} />
-              <Route path="booking-success" element={<BookingSuccessPage />} />
-              <Route path="terms" element={<TermsPage />} />
-              <Route path="privacy" element={<PrivacyPage />} />
-              <Route path="refund-policy" element={<RefundPolicyPage />} />
-              <Route path="faq" element={<FAQPage />} />
-              <Route path="contact" element={<ContactPage />} />
-              <Route path="about" element={<AboutPage />} />
-              <Route path="reviews" element={<ReviewsPage />} />
-              <Route path="blog" element={<BlogPage />} />
-              <Route path="blog/:id" element={<BlogPage />} />
-              <Route path="offers" element={<OffersPage />} />
-              
-              {/* Customer Profile Routes */}
-              <Route path="profile" element={<ProfileLayout />}>
-                <Route index element={<MyProfilePage />} />
-                <Route path="addresses" element={<AddressesPage />} />
-                <Route path="bookings" element={<BookingsPage />} />
-                <Route path="bookings/:id" element={<BookingTrackingPage />} />
-                <Route path="wallet" element={<WalletPage />} />
-                <Route path="referrals" element={<ReferralsPage />} />
-                <Route path="favorites" element={<FavoritesPage />} />
-                <Route path="notifications" element={<NotificationsPage />} />
-                <Route path="help" element={<HelpCenterPage />} />
+              {/* Customer Facing Routes */}
+              <Route path="/" element={<CustomerLayout />}>
+                <Route index element={<HomePage />} />
+                <Route path="services" element={<ServicesPage />} />
+                <Route path="services/:id" element={<ServiceDetailsPage />} />
+                <Route path="checkout" element={<CheckoutPage />} />
+                <Route path="booking-success" element={<BookingSuccessPage />} />
+                <Route path="terms" element={<TermsPage />} />
+                <Route path="privacy" element={<PrivacyPage />} />
+                <Route path="refund-policy" element={<RefundPolicyPage />} />
+                <Route path="faq" element={<FAQPage />} />
+                <Route path="contact" element={<ContactPage />} />
+                <Route path="about" element={<AboutPage />} />
+                <Route path="reviews" element={<ReviewsPage />} />
+                <Route path="blog" element={<BlogPage />} />
+                <Route path="blog/:id" element={<BlogPage />} />
+                <Route path="offers" element={<OffersPage />} />
+
+                {/* Customer Profile Routes */}
+                <Route path="profile" element={<ProfileLayout />}>
+                  <Route index element={<MyProfilePage />} />
+                  <Route path="addresses" element={<AddressesPage />} />
+                  <Route path="bookings" element={<BookingsPage />} />
+                  <Route path="bookings/:id" element={<BookingTrackingPage />} />
+                  <Route path="wallet" element={<WalletPage />} />
+                  <Route path="referrals" element={<ReferralsPage />} />
+                  <Route path="favorites" element={<FavoritesPage />} />
+                  <Route path="notifications" element={<NotificationsPage />} />
+                  <Route path="help" element={<HelpCenterPage />} />
+                  <Route path="payments" element={<PaymentHistoryPage />} />
+                </Route>
               </Route>
-            </Route>
 
-            {/* Vendor Panel Routes */}
-            <Route path="/vendor" element={<VendorLayout />}>
-              <Route index element={<VendorDashboard />} />
-              <Route path="jobs" element={<VendorJobsPage />} />
-              <Route path="register" element={<VendorRegisterPage />} />
-            </Route>
+              {/* Vendor Panel Routes */}
+              <Route path="/vendor" element={<VendorLayout />}>
+                <Route index element={<VendorDashboard />} />
+                <Route path="jobs" element={<VendorJobsPage />} />
+                <Route path="register" element={<VendorRegisterPage />} />
+              </Route>
 
-            {/* Staff Panel Routes */}
-            <Route path="/staff" element={<StaffLayout />}>
-              <Route index element={<StaffDashboard />} />
-            </Route>
+              {/* Staff Panel Routes */}
+              <Route path="/staff" element={<StaffLayout />}>
+                <Route index element={<StaffDashboard />} />
+              </Route>
 
-            {/* Admin Panel Routes */}
-            <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<AdminDashboard />} />
-              <Route path="bookings" element={<AdminBookingsPage />} />
-              <Route path="services" element={<AdminServicesPage />} />
-            </Route>
-          </Routes>
-        </CartProvider>
+              {/* Admin Panel Routes */}
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<AdminDashboard />} />
+                <Route path="bookings" element={<AdminBookingsPage />} />
+                <Route path="services" element={<AdminServicesPage />} />
+              </Route>
+            </Routes>
+            </CartProvider>
+          </BookingsProvider>
+        </FavoritesProvider>
       </AuthProvider>
     </BrowserRouter>
   );

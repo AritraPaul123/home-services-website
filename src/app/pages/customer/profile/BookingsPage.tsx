@@ -6,50 +6,12 @@ import { Button } from '../../../components/ui/button';
 import { CalendarDays, MapPin, Clock, ChevronRight } from 'lucide-react';
 import { format, addDays, subDays } from 'date-fns';
 import { ReviewModal } from '../../../components/customer/ReviewModal';
+import { toast } from 'sonner';
 
-export type BookingStatus = 'Confirmed' | 'In Progress' | 'Completed' | 'Cancelled';
-
-export interface Booking {
-  id: string;
-  serviceName: string;
-  date: Date;
-  time: string;
-  status: BookingStatus;
-  amount: number;
-  address: string;
-}
-
-const MOCK_BOOKINGS: Booking[] = [
-  {
-    id: 'BKG-10492',
-    serviceName: 'Deep Home Cleaning',
-    date: addDays(new Date(), 2),
-    time: '10:00 AM',
-    status: 'Confirmed',
-    amount: 149.00,
-    address: '123 Main St, Apt 4B, New York'
-  },
-  {
-    id: 'BKG-98231',
-    serviceName: 'AC Repair & Service',
-    date: subDays(new Date(), 5),
-    time: '02:00 PM',
-    status: 'Completed',
-    amount: 85.50,
-    address: '123 Main St, Apt 4B, New York'
-  },
-  {
-    id: 'BKG-87321',
-    serviceName: 'Plumbing Checkup',
-    date: subDays(new Date(), 10),
-    time: '11:00 AM',
-    status: 'Cancelled',
-    amount: 45.00,
-    address: '123 Main St, Apt 4B, New York'
-  }
-];
+import { useBookings, BookingStatus, Booking } from '../../../context/BookingsContext';
 
 export const BookingsPage = () => {
+  const { bookings, cancelBooking, rebookService } = useBookings();
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
 
@@ -118,13 +80,21 @@ export const BookingsPage = () => {
             )}
             
             {booking.status === 'Confirmed' && (
-              <Button variant="outline" className="w-full text-red-600 hover:text-red-700 hover:bg-red-50">
+              <Button 
+                variant="outline" 
+                className="w-full text-red-600 hover:text-red-700 hover:bg-red-50"
+                onClick={() => cancelBooking(booking.id)}
+              >
                 Cancel
               </Button>
             )}
             
             {(booking.status === 'Completed' || booking.status === 'Cancelled') && (
-              <Button variant="outline" className="w-full">
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={() => rebookService(booking)}
+              >
                 Rebook
               </Button>
             )}
@@ -134,9 +104,9 @@ export const BookingsPage = () => {
     </Card>
   );
 
-  const upcoming = MOCK_BOOKINGS.filter(b => ['Confirmed', 'In Progress'].includes(b.status));
-  const completed = MOCK_BOOKINGS.filter(b => b.status === 'Completed');
-  const cancelled = MOCK_BOOKINGS.filter(b => b.status === 'Cancelled');
+  const upcoming = bookings.filter(b => ['Confirmed', 'In Progress'].includes(b.status));
+  const completed = bookings.filter(b => b.status === 'Completed');
+  const cancelled = bookings.filter(b => b.status === 'Cancelled');
 
   return (
     <div className="space-y-6">

@@ -6,6 +6,33 @@ import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { MapPin, Home, Briefcase, Map } from 'lucide-react';
 import { toast } from 'sonner';
+import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+
+import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
+import iconUrl from 'leaflet/dist/images/marker-icon.png';
+import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
+
+// Fix Leaflet marker icon issue
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl,
+  iconUrl,
+  shadowUrl,
+});
+
+const LocationMarker = ({ position, setPosition }: { position: L.LatLng | null, setPosition: (pos: L.LatLng) => void }) => {
+  useMapEvents({
+    click(e) {
+      setPosition(e.latlng);
+    },
+  });
+
+  return position === null ? null : (
+    <Marker position={position}></Marker>
+  );
+};
 
 export type Address = {
   id: string;
@@ -36,6 +63,7 @@ export const AddressModal = ({ isOpen, onClose, onSave, editAddress }: AddressMo
     zip: '',
     isDefault: false,
   });
+  const [mapPosition, setMapPosition] = useState<L.LatLng | null>(null);
   
   // Update formData when editAddress changes
   React.useEffect(() => {
@@ -65,19 +93,45 @@ export const AddressModal = ({ isOpen, onClose, onSave, editAddress }: AddressMo
     setIsMapOpen(true);
   };
 
-  const confirmMapLocation = () => {
-    // Simulate getting address from map coordinates
-    setFormData({ 
-      ...formData, 
-      street: '789 Google Map Way',
-      city: 'San Francisco',
-      state: 'CA',
-      zip: '94103',
-      lat: 37.7749, 
-      lng: -122.4194 
-    });
-    setIsMapOpen(false);
-    toast.success('Location selected from map!');
+  const confirmMapLocation = async () => {
+    if (mapPosition) {
+      try {
+        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${mapPosition.lat}&lon=${mapPosition.lng}`);
+        const data = await response.json();
+        
+        if (data && data.address) {
+          setFormData({
+            ...formData,
+            street: data.address.road || data.address.pedestrian || data.address.suburb || 'Selected from Map',
+            city: data.address.city || data.address.town || data.address.village || '',
+            state: data.address.state || '',
+            zip: data.address.postcode || '',
+            lat: mapPosition.lat,
+            lng: mapPosition.lng
+          });
+          toast.success('Address autofilled from map!');
+        } else {
+          setFormData({ 
+            ...formData, 
+            street: 'Selected from Map',
+            lat: mapPosition.lat, 
+            lng: mapPosition.lng 
+          });
+          toast.success('Location selected, but exact address not found.');
+        }
+      } catch (error) {
+        setFormData({ 
+          ...formData, 
+          street: 'Selected from Map',
+          lat: mapPosition.lat, 
+          lng: mapPosition.lng 
+        });
+        toast.error('Failed to auto-fill address, please enter manually.');
+      }
+      setIsMapOpen(false);
+    } else {
+      toast.error('Please click on the map to select a location');
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -102,13 +156,18 @@ export const AddressModal = ({ isOpen, onClose, onSave, editAddress }: AddressMo
               <DialogTitle>Select Location on Map</DialogTitle>
               <DialogDescription>Move the map to pin your exact location.</DialogDescription>
             </DialogHeader>
-            <div className="relative w-full h-64 bg-slate-200 rounded-xl overflow-hidden my-4 border border-slate-300">
-              {/* Mock Map Image */}
-              <img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?w=600&h=400&fit=crop" alt="Map View" className="w-full h-full object-cover opacity-80" />
-              {/* Mock Map Pin in Center */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pb-8 animate-bounce">
-                <MapPin className="w-10 h-10 text-red-600 drop-shadow-md" fill="currentColor" />
-              </div>
+            <div className="relative w-full h-64 bg-slate-200 rounded-xl overflow-hidden my-4 border border-slate-300 z-10">
+              <MapContainer 
+                center={[37.7749, -122.4194]} 
+                zoom={13} 
+                style={{ height: '100%', width: '100%' }}
+              >
+                <TileLayer
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                <LocationMarker position={mapPosition} setPosition={setMapPosition} />
+              </MapContainer>
             </div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setIsMapOpen(false)}>
