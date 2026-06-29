@@ -12,6 +12,7 @@ export const OTPLoginPage = () => {
   const [step, setStep] = useState<1 | 2>(1);
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
+  const [role, setRole] = useState<'customer' | 'vendor' | 'staff' | 'admin'>('customer');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSendOTP = (e: React.FormEvent) => {
@@ -40,7 +41,7 @@ export const OTPLoginPage = () => {
           name: 'Demo User',
           email: 'user@example.com',
           phone,
-          role: 'customer'
+          role: role
         });
         toast.success('Successfully logged in');
       } else {
@@ -62,6 +63,20 @@ export const OTPLoginPage = () => {
         <CardContent>
           {step === 1 ? (
             <form onSubmit={handleSendOTP} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="role">Account Type</Label>
+                <select 
+                  id="role"
+                  value={role}
+                  onChange={(e) => setRole(e.target.value as any)}
+                  className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <option value="customer">Customer</option>
+                  <option value="vendor">Vendor</option>
+                  <option value="staff">Staff / Manager</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="phone">Phone Number</Label>
                 <Input

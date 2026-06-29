@@ -59,7 +59,7 @@ export function VendorDashboard() {
             <div className="flex flex-col md:items-end gap-3 w-full md:w-auto">
               <p className="text-xl font-bold text-slate-800">$45.00 <span className="text-sm font-normal text-slate-500">to be collected</span></p>
               <div className="flex gap-3 w-full md:w-auto">
-                <button className="flex-1 md:flex-none px-6 py-2 bg-slate-100 text-slate-700 rounded-lg font-medium hover:bg-slate-200 transition">Direction</button>
+                <a href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent("123 Main St, Apt 4B, New York")}`} target="_blank" rel="noreferrer" className="flex-1 md:flex-none px-6 py-2 bg-slate-100 text-slate-700 rounded-lg font-medium hover:bg-slate-200 transition text-center">Direction</a>
                 <button className="flex-1 md:flex-none px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition">Start Job</button>
               </div>
             </div>

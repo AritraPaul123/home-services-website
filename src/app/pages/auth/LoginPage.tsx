@@ -11,6 +11,7 @@ export const LoginPage = () => {
   const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState<'customer' | 'vendor' | 'staff' | 'admin'>('customer');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -25,7 +26,7 @@ export const LoginPage = () => {
           name: 'Demo User',
           email: email,
           phone: '+1 234 567 8900',
-          role: 'customer'
+          role: role
         });
         toast.success('Successfully logged in');
       } else {
@@ -39,13 +40,27 @@ export const LoginPage = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Customer Login</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center">Login</CardTitle>
           <CardDescription className="text-center">
-            Enter your email and password to login to your account
+            Enter your credentials and select your account type
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="role">Account Type</Label>
+              <select 
+                id="role"
+                value={role}
+                onChange={(e) => setRole(e.target.value as any)}
+                className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <option value="customer">Customer</option>
+                <option value="vendor">Vendor</option>
+                <option value="staff">Staff / Manager</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input

@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation } from "react-router";
-import { LayoutDashboard, CheckSquare, Wallet, Calendar, Bell, LogOut } from "lucide-react";
+import { LayoutDashboard, CheckSquare, Wallet, Calendar, Bell, LogOut, Star } from "lucide-react";
 
 export function VendorLayout() {
   const location = useLocation();
@@ -9,6 +9,7 @@ export function VendorLayout() {
     { name: "My Jobs", path: "/vendor/jobs", icon: <CheckSquare className="w-5 h-5" /> },
     { name: "Earnings", path: "/vendor/earnings", icon: <Wallet className="w-5 h-5" /> },
     { name: "Availability", path: "/vendor/calendar", icon: <Calendar className="w-5 h-5" /> },
+    { name: "Reviews", path: "/vendor/reviews", icon: <Star className="w-5 h-5" /> },
     { name: "Notifications", path: "/vendor/notifications", icon: <Bell className="w-5 h-5" /> },
   ];
 
@@ -35,7 +36,7 @@ export function VendorLayout() {
           })}
         </nav>
         <div className="p-4 border-t border-blue-800">
-          <div className="flex items-center gap-3 mb-4 px-4">
+          <Link to="/vendor/profile" className="flex items-center gap-3 mb-4 px-4 hover:bg-blue-800 py-2 rounded-lg transition-colors cursor-pointer block">
              <div className="w-10 h-10 rounded-full bg-blue-700 flex items-center justify-center font-bold">
                JS
              </div>
@@ -43,7 +44,7 @@ export function VendorLayout() {
                <p className="font-bold text-sm">John Smith</p>
                <p className="text-xs text-blue-300">AC Technician</p>
              </div>
-          </div>
+          </Link>
           <button className="flex items-center gap-3 px-4 py-3 text-blue-200 hover:text-red-300 transition-colors w-full">
             <LogOut className="w-5 h-5" />
             <span className="font-medium">Logout</span>
